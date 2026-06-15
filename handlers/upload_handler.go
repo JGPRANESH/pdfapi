@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"pdfapi/config"
-	"pdfapi/embeddings"
 	"pdfapi/services"
 
 	"github.com/gin-gonic/gin"
@@ -66,43 +65,45 @@ func UploadFileHandler(c *gin.Context) {
 	}
 	fmt.Println("🎶🎶 Generated:")
 	// Create chunks
-	chunks := services.CreateChunks(ocrText)
+	// chunks := services.CreateChunks(ocrText)
 
-	fmt.Println("Total Chunks:", len(chunks))
+	// fmt.Println("Total Chunks:", len(chunks))
 
-	provider := &embeddings.BGEProvider{
-		BaseURL: "http://127.0.0.1:8000",
-	}
+	// provider := &embeddings.BGEProvider{
+	// 	BaseURL: "http://127.0.0.1:8000",
+	// }
 
-	embedService := embeddings.NewService(provider)
+	// embedService := embeddings.NewService(provider)
 
-	chunkEmbeddings, err := embeddings.GenerateChunkEmbeddings(
-		fileHeader.Filename,
-		chunks,
-		embedService,
-	)
+	// chunkEmbeddings, err := embeddings.GenerateChunkEmbeddings(
+	// 	fileHeader.Filename,
+	// 	chunks,
+	// 	embedService,
+	// )
 
-	if err != nil {
-		fmt.Println("warning: embeddings failed:", err)
-		chunkEmbeddings = []embeddings.ChunkEmbedding{}
-	}
+	// if err != nil {
+	// 	fmt.Println("warning: embeddings failed:", err)
+	// 	chunkEmbeddings = []embeddings.ChunkEmbedding{}
+	// }
 
-	fmt.Println("Embeddings Generated:", len(chunkEmbeddings))
+	// fmt.Println("Embeddings Generated:", len(chunkEmbeddings))
 
-	savedCount, err := embeddings.StoreUniqueEmbeddings(
-		"embeddings.json",
-		chunkEmbeddings,
-		0.90,
-	)
+	// savedCount, err := embeddings.StoreUniqueEmbeddings(
+	// 	"embeddings.json",
+	// 	chunkEmbeddings,
+	// 	0.90,
+	// )
 
-	if err != nil {
-		fmt.Println("embedding storage error:", err)
-	}
+	// if err != nil {
+	// 	fmt.Println("embedding storage error:", err)
+	// }
 
-	fmt.Println("New Embeddings Saved:", savedCount)
+	// fmt.Println("New Embeddings Saved:", savedCount)
 
 	// Generate questions using Groq
-	questions, err := services.GenerateQuestions(ocrText)
+	// questions, err := services.GenerateQuestions(ocrText)
+
+	questions, err := services.ParseMCQs(ocrText)
 
 	err = services.SaveQuiz(
 		config.FirestoreClient,
@@ -111,7 +112,6 @@ func UploadFileHandler(c *gin.Context) {
 	)
 
 	if err != nil {
-
 		fmt.Println("SAVE ERROR:", err)
 
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -121,12 +121,47 @@ func UploadFileHandler(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
+	fmt.Println("✅ Quiz saved successfully")
+	fmt.Println("Questions count:", len(questions))
+
+	// questions := []models.Question{
+	// 	{
+	// 		ID:           "1",
+	// 		QuestionText: "Test Question",
+	// 		Options: []string{
+	// 			"Option A",
+	// 			"Option B",
+	// 			"Option C",
+	// 			"Option D",
+	// 		},
+	// 		CorrectOptionIndex: 0,
+	// 		Difficulty:         "Easy",
+	// 	},
+	// }
+
+	// err = services.SaveQuiz(
+	// 	config.FirestoreClient,
+	// 	fileHeader.Filename,
+	// 	questions,
+	// )
+
+	// if err != nil {
+
+	// 	fmt.Println("SAVE ERROR:", err)
+
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+
+	// 	return
+	// }
+
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	// Convert JSON string to JSON object
 
