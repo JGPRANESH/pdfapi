@@ -105,10 +105,34 @@ func UploadFileHandler(c *gin.Context) {
 
 	questions, err := services.ParseMCQs(ocrText)
 
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Generate metadata from extracted questions
+	metadata, err := services.GenerateQuizMetadata(questions)
+
+	if err != nil {
+		fmt.Println("METADATA ERROR:", err)
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	fmt.Printf("Generated Metadata: %+v\n", metadata)
+
+	// Save quiz
 	err = services.SaveQuiz(
 		config.FirestoreClient,
 		fileHeader.Filename,
 		questions,
+		metadata,
 	)
 
 	if err != nil {
@@ -123,21 +147,6 @@ func UploadFileHandler(c *gin.Context) {
 
 	fmt.Println("✅ Quiz saved successfully")
 	fmt.Println("Questions count:", len(questions))
-
-	// questions := []models.Question{
-	// 	{
-	// 		ID:           "1",
-	// 		QuestionText: "Test Question",
-	// 		Options: []string{
-	// 			"Option A",
-	// 			"Option B",
-	// 			"Option C",
-	// 			"Option D",
-	// 		},
-	// 		CorrectOptionIndex: 0,
-	// 		Difficulty:         "Easy",
-	// 	},
-	// }
 
 	// err = services.SaveQuiz(
 	// 	config.FirestoreClient,
