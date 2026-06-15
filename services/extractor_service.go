@@ -19,13 +19,13 @@ func ExtractText(pdfPath string) (string, error) {
 
 		if len(cleanText) > 500 {
 
-			log.Println("Using native extraction")
+			log.Println("✅ Using native extraction")
 
 			return cleanText, nil
 		}
 	}
 
-	log.Println("Falling back to OCR...")
+	log.Println("⚠️ Falling back to OCR...")
 
 	pdfParts, err := SplitPDF(pdfPath)
 

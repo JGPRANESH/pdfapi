@@ -32,13 +32,28 @@ func SaveQuiz(
 	}
 	quizID := uuid.New().String()
 
+	println("Saving quiz ID:", quizID)
+
 	_, err := client.
 		Collection("quizzes").
 		Doc(quizID).
 		Set(ctx, quiz)
 
+	doc, err := client.
+		Collection("quizzes").
+		Doc(quizID).
+		Get(ctx)
+
+	if err != nil {
+		println("READ FAILED:", err.Error())
+	} else {
+		println("DOCUMENT FOUND:", doc.Ref.ID)
+	}
+
 	if err != nil {
 		return err
 	}
+
+	println("Saved quiz ID:", quizID)
 	return nil
 }
