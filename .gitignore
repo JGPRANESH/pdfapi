@@ -1,0 +1,11 @@
+.env
+
+uploads/
+tmp/
+
+*.log
+
+.vscode/
+.idea/
+serviceAccountKey.json
+*.exe
