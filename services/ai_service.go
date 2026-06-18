@@ -194,3 +194,80 @@ QUESTIONS:
 
 	return &metadata, nil
 }
+
+// question generation from topic or text
+
+func GenerateContent(prompt string) (string, error) {
+	apiKey := os.Getenv("GROQ_API_KEY")
+	if apiKey == "" {
+		return "", fmt.Errorf("GROQ_API_KEY not found")
+	}
+
+	requestBody := GroqRequest{
+		Model: "openai/gpt-oss-20b",
+		Messages: []Message{
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequest(
+		http.MethodPost,
+		"https://api.groq.com/openai/v1/chat/completions",
+		bytes.NewBuffer(jsonData),
+	)
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set(
+		"Authorization",
+		"Bearer "+apiKey,
+	)
+
+	req.Header.Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	client := &http.Client{
+		Timeout: 90 * time.Second,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var groqResp GroqResponse
+
+	if err := json.Unmarshal(body, &groqResp); err != nil {
+		return "", err
+	}
+
+	if len(groqResp.Choices) == 0 {
+		return "", fmt.Errorf("empty response")
+	}
+
+	content := groqResp.Choices[0].Message.Content
+
+	content = strings.ReplaceAll(content, "```json", "")
+	content = strings.ReplaceAll(content, "```", "")
+	content = strings.TrimSpace(content)
+
+	return content, nil
+}
