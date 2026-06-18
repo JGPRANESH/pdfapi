@@ -10,3 +10,4 @@ tmp/
 serviceAccountKey.json
 *.exe
 *.json
+cloudrun.env
