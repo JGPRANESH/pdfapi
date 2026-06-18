@@ -5,3 +5,4 @@ tmp/
 uploads/
 serviceAccountKey.json
 .env
+*.json

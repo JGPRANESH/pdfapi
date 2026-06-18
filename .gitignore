@@ -9,3 +9,4 @@ tmp/
 .idea/
 serviceAccountKey.json
 *.exe
+*.json
