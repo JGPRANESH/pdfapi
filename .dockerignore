@@ -1,0 +1,7 @@
+.git
+.gitignore
+*.exe
+tmp/
+uploads/
+serviceAccountKey.json
+.env
