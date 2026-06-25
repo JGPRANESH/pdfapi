@@ -103,42 +103,150 @@ func UploadFileHandler(c *gin.Context) {
 	// Generate questions using Groq
 	// questions, err := services.GenerateQuestions(ocrText)
 
-	questions, err := services.ParseMCQs(ocrText)
+	// allQuestion, err := services.ParseMCQs(ocrText)
 
-	err = services.SaveQuiz(
-		config.FirestoreClient,
-		fileHeader.Filename,
-		questions,
-	)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+	allQuestions, err := services.ParseMCQs(ocrText)
 
 	if err != nil {
-		fmt.Println("SAVE ERROR:", err)
-
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
-
 		return
 	}
 
-	fmt.Println("✅ Quiz saved successfully")
-	fmt.Println("Questions count:", len(questions))
+	// Modes:
+	// all
+	// random
 
-	// questions := []models.Question{
-	// 	{
-	// 		ID:           "1",
-	// 		QuestionText: "Test Question",
-	// 		Options: []string{
-	// 			"Option A",
-	// 			"Option B",
-	// 			"Option C",
-	// 			"Option D",
-	// 		},
-	// 		CorrectOptionIndex: 0,
-	// 		Difficulty:         "Easy",
-	// 	},
-	// }
+	mode := c.DefaultPostForm(
+		"mode",
+		services.ModeAll,
+	)
 
+	count := 20
+
+	if countStr := c.PostForm("count"); countStr != "" {
+		fmt.Sscanf(countStr, "%d", &count)
+	}
+
+	generatedQuestions := 0
+	totalChunksCreated := 0
+
+	switch mode {
+
+	case services.ModeAll:
+		generatedQuestions = len(allQuestions)
+
+		metadata, err := services.GenerateQuizMetadata(
+			allQuestions,
+		)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		err = services.SaveQuiz(
+			config.FirestoreClient,
+			fileHeader.Filename,
+			allQuestions,
+			metadata,
+		)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+	case services.ModeRandom:
+
+		randomQuestions := services.SelectQuestions(
+			allQuestions,
+			services.ModeRandom,
+			count,
+		)
+		generatedQuestions = len(randomQuestions)
+
+		metadata, err := services.GenerateQuizMetadata(
+			randomQuestions,
+		)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		err = services.SaveQuiz(
+			config.FirestoreClient,
+			fileHeader.Filename,
+			randomQuestions,
+			metadata,
+		)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+	case services.ModeChunk:
+
+		chunks := services.GenerateQuestionChunks(
+			allQuestions,
+			count,
+		)
+
+		totalChunksCreated = len(chunks)
+		generatedQuestions = len(allQuestions)
+
+		for i, chunk := range chunks {
+
+			metadata, err := services.GenerateQuizMetadata(
+				chunk,
+			)
+
+			if err != nil {
+				continue
+			}
+
+			fileName := fmt.Sprintf(
+				"%s_part_%d",
+				fileHeader.Filename,
+				i+1,
+			)
+
+			err = services.SaveQuiz(
+				config.FirestoreClient,
+				fileName,
+				chunk,
+				metadata,
+			)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+
+	default:
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid mode",
+		})
+		return
+	}
 	// err = services.SaveQuiz(
 	// 	config.FirestoreClient,
 	// 	fileHeader.Filename,
@@ -168,9 +276,12 @@ func UploadFileHandler(c *gin.Context) {
 	// Final Response
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":    "Questions generated successfully 🚀",
-		"filename":   fileHeader.Filename,
-		"ocr_length": len(ocrText),
-		"questions":  questions,
+		"message":                 "Quiz generated successfully 🚀",
+		"filename":                fileHeader.Filename,
+		"mode":                    mode,
+		"totalExtractedQuestions": len(allQuestions),
+		"generatedQuestions":      generatedQuestions,
+		"totalChunksCreated":      totalChunksCreated,
+		"count":                   count,
 	})
 }

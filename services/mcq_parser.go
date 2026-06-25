@@ -11,7 +11,7 @@ func ParseMCQs(text string) ([]models.Question, error) {
 	var questions []models.Question
 
 	pattern := regexp.MustCompile(
-		`(?s)(\d+)\.\s*(.*?)\s*A\.\s*(.*?)\s*B\.\s*(.*?)\s*C\.\s*(.*?)\s*D\.\s*(.*?)\s*Answer:\s*Option\s*([A-D])`,
+		`(?s)(\d+)\.\s*(.*?)\s*A\.\s*(.*?)\s*B\.\s*(.*?)\s*C\.\s*(.*?)\s*D\.\s*(.*?)\s*Answer:\s*(?:Option\s*)?([A-D])`,
 	)
 
 	matches := pattern.FindAllStringSubmatch(text, -1)

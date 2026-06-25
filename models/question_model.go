@@ -6,4 +6,6 @@ type Question struct {
 	Options            []string `json:"options" firestore:"options"`
 	CorrectOptionIndex int      `json:"correctOptionIndex" firestore:"correctOptionIndex"`
 	Difficulty         string   `json:"difficulty" firestore:"difficulty"`
+
+	Description string `json:"description" firestore:"description"`
 }

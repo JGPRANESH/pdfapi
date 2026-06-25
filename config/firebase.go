@@ -2,7 +2,9 @@ package config
 
 import (
 	"context"
+	"encoding/base64"
 	"log"
+	"os"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
@@ -15,9 +17,28 @@ var FirestoreClient *firestore.Client
 func InitFirebase() {
 	ctx := context.Background()
 
-	opt := option.WithCredentialsFile("serviceAccountKey.json")
+	projectID := os.Getenv("FIREBASE_PROJECT_ID")
+	if projectID == "" {
+		log.Fatal("FIREBASE_PROJECT_ID is not set")
+	}
 
-	app, err := firebase.NewApp(ctx, nil, opt)
+	encodedCreds := os.Getenv("FIREBASE_CREDENTIALS_BASE64")
+	if encodedCreds == "" {
+		log.Fatal("FIREBASE_CREDENTIALS_BASE64 is not set")
+	}
+
+	credJSON, err := base64.StdEncoding.DecodeString(encodedCreds)
+	if err != nil {
+		log.Fatalf("Failed to decode Firebase credentials: %v", err)
+	}
+
+	conf := &firebase.Config{
+		ProjectID: projectID,
+	}
+
+	opt := option.WithCredentialsJSON(credJSON)
+
+	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
 		log.Fatalf("Firebase init error: %v", err)
 	}

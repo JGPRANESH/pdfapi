@@ -1,5 +1,5 @@
 .env
-
+*.env
 uploads/
 tmp/
 
@@ -9,3 +9,5 @@ tmp/
 .idea/
 serviceAccountKey.json
 *.exe
+*.json
+cloudrun.env
