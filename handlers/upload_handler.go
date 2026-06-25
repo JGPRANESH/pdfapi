@@ -22,6 +22,7 @@ func UploadFileHandler(c *gin.Context) {
 		})
 		return
 	}
+	examName := c.PostForm("examName")
 
 	// Save PDF
 	pdfPath := "uploads/" + fileHeader.Filename
@@ -123,6 +124,7 @@ func UploadFileHandler(c *gin.Context) {
 	// Modes:
 	// all
 	// random
+	//chunk
 
 	mode := c.DefaultPostForm(
 		"mode",
@@ -159,6 +161,7 @@ func UploadFileHandler(c *gin.Context) {
 			fileHeader.Filename,
 			allQuestions,
 			metadata,
+			examName,
 		)
 
 		if err != nil {
@@ -166,6 +169,41 @@ func UploadFileHandler(c *gin.Context) {
 				"error": err.Error(),
 			})
 			return
+		}
+		// ---------------- Plus 5 ----------------
+
+		extra5 := services.GetRandomExtraQuestions(
+			allQuestions,
+			5,
+		)
+
+		metadata5, err := services.GenerateQuizMetadata(extra5)
+		if err == nil {
+			services.SaveQuiz(
+				config.FirestoreClient,
+				fileHeader.Filename+"_Plus5",
+				extra5,
+				metadata5,
+				examName,
+			)
+		}
+
+		// ---------------- Plus 10 ----------------
+
+		extra10 := services.GetRandomExtraQuestions(
+			allQuestions,
+			10,
+		)
+
+		metadata10, err := services.GenerateQuizMetadata(extra10)
+		if err == nil {
+			services.SaveQuiz(
+				config.FirestoreClient,
+				fileHeader.Filename+"_Plus10",
+				extra10,
+				metadata10,
+				examName,
+			)
 		}
 
 	case services.ModeRandom:
@@ -193,6 +231,7 @@ func UploadFileHandler(c *gin.Context) {
 			fileHeader.Filename,
 			randomQuestions,
 			metadata,
+			examName,
 		)
 
 		if err != nil {
@@ -200,6 +239,41 @@ func UploadFileHandler(c *gin.Context) {
 				"error": err.Error(),
 			})
 			return
+		}
+		// ---------------- Plus 5 ----------------
+
+		extra5 := services.GetRandomExtraQuestions(
+			allQuestions,
+			5,
+		)
+
+		metadata5, err := services.GenerateQuizMetadata(extra5)
+		if err == nil {
+			services.SaveQuiz(
+				config.FirestoreClient,
+				fileHeader.Filename+"_Plus5",
+				extra5,
+				metadata5,
+				examName,
+			)
+		}
+
+		// ---------------- Plus 10 ----------------
+
+		extra10 := services.GetRandomExtraQuestions(
+			allQuestions,
+			10,
+		)
+
+		metadata10, err := services.GenerateQuizMetadata(extra10)
+		if err == nil {
+			services.SaveQuiz(
+				config.FirestoreClient,
+				fileHeader.Filename+"_Plus10",
+				extra10,
+				metadata10,
+				examName,
+			)
 		}
 
 	case services.ModeChunk:
@@ -233,10 +307,46 @@ func UploadFileHandler(c *gin.Context) {
 				fileName,
 				chunk,
 				metadata,
+				examName,
 			)
 
 			if err != nil {
 				fmt.Println(err)
+			}
+			// ---------------- Plus 5 ----------------
+
+			extra5 := services.GetRandomExtraQuestions(
+				allQuestions,
+				5,
+			)
+
+			metadata5, err := services.GenerateQuizMetadata(extra5)
+			if err == nil {
+				services.SaveQuiz(
+					config.FirestoreClient,
+					fileHeader.Filename+"_Plus5",
+					extra5,
+					metadata5,
+					examName,
+				)
+			}
+
+			// ---------------- Plus 10 ----------------
+
+			extra10 := services.GetRandomExtraQuestions(
+				allQuestions,
+				10,
+			)
+
+			metadata10, err := services.GenerateQuizMetadata(extra10)
+			if err == nil {
+				services.SaveQuiz(
+					config.FirestoreClient,
+					fileHeader.Filename+"_Plus10",
+					extra10,
+					metadata10,
+					examName,
+				)
 			}
 		}
 
@@ -247,6 +357,7 @@ func UploadFileHandler(c *gin.Context) {
 		})
 		return
 	}
+
 	// err = services.SaveQuiz(
 	// 	config.FirestoreClient,
 	// 	fileHeader.Filename,

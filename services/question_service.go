@@ -11,17 +11,21 @@ import (
 )
 
 type QuizDocument struct {
-	FileName        string    `firestore:"fileName"`
-	CreatedAt       time.Time `firestore:"createdAt"`
-	DurationMinutes int       `firestore:"durationMinutes"`
-	MaxMarks        int       `firestore:"maxMarks"`
-	TotalQuestions  int       `firestore:"totalQuestions"`
-	Type            string    `firestore:"type"`
+	FileName                  string    `firestore:"fileName"`
+	CreatedAt                 time.Time `firestore:"createdAt"`
+	DurationMinutes           int       `firestore:"durationMinutes"`
+	MaxMarks                  int       `firestore:"maxMarks"`
+	TotalQuestions            int       `firestore:"totalQuestions"`
+	Type                      string    `firestore:"type"`
+	Description               string    `firestore:"description"`
+	EachQuestionMarks         int       `firestore:"eachQuestionMarks"`
+	EachQuestionNegativeMarks int       `firestore:"eachQuestionNegativeMarks"`
 
 	Title       string `firestore:"title"`
 	Explanation string `firestore:"explanation"`
 	Category    string `firestore:"category"`
 	Difficulty  string `firestore:"difficulty"`
+	ExamName    string `firestore:"examName"`
 
 	Questions []models.Question `firestore:"questions"`
 }
@@ -31,6 +35,7 @@ func SaveQuiz(
 	fileName string,
 	questions []models.Question,
 	metadata *models.QuizMetadata,
+	examName string,
 ) error {
 
 	if metadata == nil {
@@ -40,12 +45,20 @@ func SaveQuiz(
 	ctx := context.Background()
 
 	quiz := QuizDocument{
-		FileName:        fileName,
-		CreatedAt:       time.Now(),
-		DurationMinutes: 60, // Default duration of 60 minutes
-		TotalQuestions:  len(questions),
-		MaxMarks:        20, // Default max marks
-		Type:            "mock",
+		FileName:  fileName,
+		CreatedAt: time.Now(),
+		DurationMinutes: CalculateDuration(
+			metadata.Category,
+			metadata.Difficulty,
+			len(questions),
+		),
+		TotalQuestions:            len(questions),
+		MaxMarks:                  len(questions),
+		Type:                      "mock",
+		Description:               "",
+		ExamName:                  examName,
+		EachQuestionMarks:         1,
+		EachQuestionNegativeMarks: -1,
 
 		Title:       metadata.Title,
 		Explanation: metadata.Explanation,

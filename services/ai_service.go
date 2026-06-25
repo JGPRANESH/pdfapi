@@ -58,22 +58,35 @@ func GenerateQuizMetadata(
 	url := "https://api.groq.com/openai/v1/chat/completions"
 
 	prompt := `
-Analyze the following quiz questions.
+Analyze the following quiz questions and generate quiz metadata.
 
 Generate:
-
 1. Title
-2. small detail Description 
+2. Short Description
 3. Category
 4. Difficulty (Easy, Medium, Hard)
+
+Category MUST be exactly ONE of these values:
+- GK
+- CA
+- Reasoning
+- English
+- Science
+- Maths
+
+Rules:
+- Choose the category based only on the provided PDF content.
+- Do NOT invent a new category.
+- If multiple categories seem applicable, select the single best match.
+- Return ONLY one of the six allowed category values.
 
 Return ONLY valid JSON:
 
 {
-  "title":"",
-  "description":"",
-  "category":"",
-  "difficulty":""
+  "title": "",
+  "description": "",
+  "category": "",
+  "difficulty": ""
 }
 
 QUESTIONS:
