@@ -48,7 +48,7 @@ func SaveQuiz(
 		Type:            "mock",
 
 		Title:       metadata.Title,
-		Explanation: metadata.Explanation,
+		Explanation: metadata.Description,
 		Category:    metadata.Category,
 		Difficulty:  metadata.Difficulty,
 

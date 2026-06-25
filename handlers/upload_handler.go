@@ -111,8 +111,16 @@ func UploadFileHandler(c *gin.Context) {
 	// 	})
 	// 	return
 	// }
-	allQuestions, err := services.ParseMCQs(ocrText)
+	// allQuestions, err := services.ParseMCQs(ocrText)
 
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	allQuestions, err := services.GenerateQuestionsFromText(ocrText)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -167,6 +175,12 @@ func UploadFileHandler(c *gin.Context) {
 			})
 			return
 		}
+		// notification add
+		go services.SendTopicNotification(
+			"live_test",
+			"New Live Test Available 🚀",
+			fmt.Sprintf("%s (%d Questions)", metadata.Title, len(allQuestions)),
+		)
 
 	case services.ModeRandom:
 
@@ -247,6 +261,7 @@ func UploadFileHandler(c *gin.Context) {
 		})
 		return
 	}
+
 	// err = services.SaveQuiz(
 	// 	config.FirestoreClient,
 	// 	fileHeader.Filename,

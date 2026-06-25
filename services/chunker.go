@@ -1,26 +1,59 @@
 package services
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
+
+var questionBoundaryRegex = regexp.MustCompile(`(?m)^\s*\d+[.)]\s+`)
 
 func CreateChunks(text string) []string {
 
-	const chunkSize = 200 // words per chunk
+	text = CleanExtractedText(text)
 
-	words := strings.Fields(text)
+	matches := questionBoundaryRegex.FindAllStringIndex(text, -1)
+
+	if len(matches) == 0 {
+		return []string{text}
+	}
+
+	var questions []string
+
+	for i := range matches {
+
+		start := matches[i][0]
+
+		var end int
+
+		if i == len(matches)-1 {
+			end = len(text)
+		} else {
+			end = matches[i+1][0]
+		}
+
+		q := strings.TrimSpace(text[start:end])
+
+		if q != "" {
+			questions = append(questions, q)
+		}
+	}
+
+	const questionsPerChunk = 4
 
 	var chunks []string
 
-	for i := 0; i < len(words); i += chunkSize {
+	for i := 0; i < len(questions); i += questionsPerChunk {
 
-		end := i + chunkSize
+		end := i + questionsPerChunk
 
-		if end > len(words) {
-			end = len(words)
+		if end > len(questions) {
+			end = len(questions)
 		}
 
-		chunk := strings.Join(words[i:end], " ")
-
-		chunks = append(chunks, chunk)
+		chunks = append(
+			chunks,
+			strings.Join(questions[i:end], "\n\n"),
+		)
 	}
 
 	return chunks
