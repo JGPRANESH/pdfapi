@@ -55,7 +55,7 @@ func SaveQuiz(
 		TotalQuestions:            len(questions),
 		MaxMarks:                  len(questions),
 		Type:                      "mock",
-		Description:               "",
+		Description:               metadata.Description,
 		ExamName:                  examName,
 		EachQuestionMarks:         1,
 		EachQuestionNegativeMarks: -1,

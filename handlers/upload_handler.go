@@ -170,41 +170,11 @@ func UploadFileHandler(c *gin.Context) {
 			})
 			return
 		}
-		// ---------------- Plus 5 ----------------
-
-		extra5 := services.GetRandomExtraQuestions(
+		services.SaveQuizVariants(
+			fileHeader.Filename,
+			examName,
 			allQuestions,
-			5,
 		)
-
-		metadata5, err := services.GenerateQuizMetadata(extra5)
-		if err == nil {
-			services.SaveQuiz(
-				config.FirestoreClient,
-				fileHeader.Filename+"_Plus5",
-				extra5,
-				metadata5,
-				examName,
-			)
-		}
-
-		// ---------------- Plus 10 ----------------
-
-		extra10 := services.GetRandomExtraQuestions(
-			allQuestions,
-			10,
-		)
-
-		metadata10, err := services.GenerateQuizMetadata(extra10)
-		if err == nil {
-			services.SaveQuiz(
-				config.FirestoreClient,
-				fileHeader.Filename+"_Plus10",
-				extra10,
-				metadata10,
-				examName,
-			)
-		}
 
 	case services.ModeRandom:
 
@@ -240,47 +210,19 @@ func UploadFileHandler(c *gin.Context) {
 			})
 			return
 		}
-		// ---------------- Plus 5 ----------------
-
-		extra5 := services.GetRandomExtraQuestions(
+		services.SaveQuizVariants(
+			fileHeader.Filename,
+			examName,
 			allQuestions,
-			5,
 		)
-
-		metadata5, err := services.GenerateQuizMetadata(extra5)
-		if err == nil {
-			services.SaveQuiz(
-				config.FirestoreClient,
-				fileHeader.Filename+"_Plus5",
-				extra5,
-				metadata5,
-				examName,
-			)
-		}
-
-		// ---------------- Plus 10 ----------------
-
-		extra10 := services.GetRandomExtraQuestions(
-			allQuestions,
-			10,
-		)
-
-		metadata10, err := services.GenerateQuizMetadata(extra10)
-		if err == nil {
-			services.SaveQuiz(
-				config.FirestoreClient,
-				fileHeader.Filename+"_Plus10",
-				extra10,
-				metadata10,
-				examName,
-			)
-		}
 
 	case services.ModeChunk:
 
 		chunks := services.GenerateQuestionChunks(
 			allQuestions,
 			count,
+			0,
+			false,
 		)
 
 		totalChunksCreated = len(chunks)
@@ -313,42 +255,13 @@ func UploadFileHandler(c *gin.Context) {
 			if err != nil {
 				fmt.Println(err)
 			}
-			// ---------------- Plus 5 ----------------
 
-			extra5 := services.GetRandomExtraQuestions(
-				allQuestions,
-				5,
-			)
-
-			metadata5, err := services.GenerateQuizMetadata(extra5)
-			if err == nil {
-				services.SaveQuiz(
-					config.FirestoreClient,
-					fileHeader.Filename+"_Plus5",
-					extra5,
-					metadata5,
-					examName,
-				)
-			}
-
-			// ---------------- Plus 10 ----------------
-
-			extra10 := services.GetRandomExtraQuestions(
-				allQuestions,
-				10,
-			)
-
-			metadata10, err := services.GenerateQuizMetadata(extra10)
-			if err == nil {
-				services.SaveQuiz(
-					config.FirestoreClient,
-					fileHeader.Filename+"_Plus10",
-					extra10,
-					metadata10,
-					examName,
-				)
-			}
 		}
+		services.SaveQuizVariants(
+			fileHeader.Filename,
+			examName,
+			allQuestions,
+		)
 
 	default:
 
