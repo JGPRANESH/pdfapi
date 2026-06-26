@@ -1,6 +1,11 @@
 package services
 
-import "strings"
+import (
+	"fmt"
+	"pdfapi/config"
+	"pdfapi/models"
+	"strings"
+)
 
 func CreateChunks(text string) []string {
 
@@ -24,4 +29,52 @@ func CreateChunks(text string) []string {
 	}
 
 	return chunks
+}
+
+//
+
+func SaveQuizVariants(
+	fileName string,
+	examName string,
+	questions []models.Question,
+) {
+
+	chunkSizes := []int{10, 5}
+
+	for _, size := range chunkSizes {
+
+		chunks := GenerateQuestionChunks(
+			questions,
+			size,
+			size/2,
+			true,
+		)
+
+		for i, chunk := range chunks {
+
+			metadata, err := GenerateQuizMetadata(chunk)
+			if err != nil {
+				continue
+			}
+
+			variantName := fmt.Sprintf(
+				"%s_%d_part_%d",
+				fileName,
+				size,
+				i+1,
+			)
+
+			err = SaveQuiz(
+				config.FirestoreClient,
+				variantName,
+				chunk,
+				metadata,
+				examName,
+			)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 }

@@ -20,4 +20,6 @@ func SetupRoutes(router *gin.Engine) {
 
 	// AI MCQ Generation
 	router.POST("/generate", handlers.GenerateQuizHandler)
+	// notification
+	router.POST("/notification", handlers.NotificationHandler)
 }

@@ -62,7 +62,7 @@ Analyze the following quiz questions and generate quiz metadata.
 
 Generate:
 1. Title
-2. Short Description
+2. Short 1-2 sentance Description about the topic
 3. Category
 4. Difficulty (Easy, Medium, Hard)
 
