@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"pdfapi/models"
@@ -21,17 +22,28 @@ func NotificationHandler(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("========== Notification Request ==========")
+	fmt.Println("Token:", req.Token)
+	fmt.Println("Topic:", req.Topic)
+
 	// Validate required fields
-	if req.Topic == "" || req.Title == "" || req.Body == "" {
+	// if req.Topic == "" || req.Title == "" || req.Body == "" {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": "topic, title and body are required",
+	// 	})
+	// 	return
+	// }
+
+	if req.Token == "" || req.Title == "" || req.Body == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "topic, title and body are required",
+			"error": "token, title and body are required",
 		})
 		return
 	}
 
 	// Send notification
-	if err := services.SendTopicNotification(
-		req.Topic,
+	if err := services.SendTokenNotification(
+		req.Token,
 		req.Title,
 		req.Body,
 	); err != nil {
@@ -44,4 +56,5 @@ func NotificationHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Notification sent successfully 🚀",
 	})
+
 }
