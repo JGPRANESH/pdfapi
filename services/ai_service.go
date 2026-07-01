@@ -58,27 +58,47 @@ func GenerateQuizMetadata(
 	url := "https://api.groq.com/openai/v1/chat/completions"
 
 	prompt := `
-Analyze the following quiz questions and generate quiz metadata.
+Analyze the quiz questions and generate:
 
-Generate:
-1. Title
-2. Short 1-2 sentance Description about the topic
-3. Category
-4. Difficulty (Easy, Medium, Hard)
+1. title
+2. description (max 25 words)
+3. category
+4. difficulty
 
-Category MUST be exactly ONE of these values:
-- GK
-- CA
-- Reasoning
-- English
-- Science
-- Maths
+Category MUST be EXACTLY one of:
 
-Rules:
-- Choose the category based only on the provided PDF content.
-- Do NOT invent a new category.
-- If multiple categories seem applicable, select the single best match.
-- Return ONLY one of the six allowed category values.
+GK
+CA
+Reasoning
+English
+Science
+Maths
+
+Category Rules:
+- Choose the category that best represents the majority of the questions.
+- Never invent a new category.
+- Return only one category.
+
+Category Mapping:
+- GK: History, Geography, Polity, Economics, Constitution, Static GK, Sports, Awards, Culture.
+- CA: recent news, current affairs, government schemes, recent appointments, budgets, recent sports, recent awards, recent international events.
+- Reasoning: Logical reasoning, puzzles, coding-decoding, blood relations, seating arrangement, syllogism, analogy, series, directions.
+- English: Grammar, vocabulary, comprehension, synonyms, antonyms, idioms, sentence correction.
+- Science: Physics, Chemistry, Biology, Environmental Science, General Science, Computer Science, DBMS, SQL, Programming, Operating Systems, Computer Networks, Data Structures, Algorithms, AI, ML, Cyber Security, Software Engineering.
+- Maths: Arithmetic, Algebra, Geometry, Trigonometry, Mensuration, Statistics, Probability, Quantitative Aptitude, Data Interpretation.
+
+Difficulty:
+- Easy: Basic knowledge or simple questions.
+- Medium: Moderate reasoning or calculations.
+- Hard: Advanced reasoning or difficult concepts.
+
+Title:
+- Maximum 8 words.
+- Professional and relevant to the quiz topic.
+
+Description:
+- Maximum 25 words.
+- Briefly describe what the quiz covers.
 
 Return ONLY valid JSON:
 

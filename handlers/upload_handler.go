@@ -56,14 +56,14 @@ func UploadFileHandler(c *gin.Context) {
 		return
 	}
 
-	ocrText, err := services.ExtractText(pdfPath)
+	// ocrText, err := services.ExtractText(pdfPath)
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 	fmt.Println("🎶🎶 Generated:")
 	// Create chunks
 	// chunks := services.CreateChunks(ocrText)
@@ -112,6 +112,16 @@ func UploadFileHandler(c *gin.Context) {
 	// 	})
 	// 	return
 	// }
+	// Step 1
+	ocrText, err := services.ExtractText(pdfPath)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	allQuestions, err := services.ParseMCQs(ocrText)
 
 	if err != nil {
@@ -270,6 +280,19 @@ func UploadFileHandler(c *gin.Context) {
 		})
 		return
 	}
+
+	title, body := services.GetRandomQuizNotification(examName)
+
+	// services.SendTopicNotificationAsync(
+	// 	"exam_news",
+	// 	title,
+	// 	body,
+	// )
+	services.SendTokenNotificationAsync(
+		"ds0gUTOoQUqlyX7ggyosQ5:APA91bGnXumna765ZOc7WVr2Qbl3Ol0GBYgd_gSuyh8nj9hqJph3w8QCrw_CysvZ3gxWr_o-JVlsGvhFDe9ZCzTVHjS3O4Zcwg1ecThby07SDB4YOgzYzjM",
+		title,
+		body,
+	)
 
 	// err = services.SaveQuiz(
 	// 	config.FirestoreClient,

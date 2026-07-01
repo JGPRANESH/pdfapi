@@ -47,8 +47,12 @@ func ParseMCQs(text string) ([]models.Question, error) {
 	return questions, nil
 }
 func cleanText(text string) string {
-	text = strings.ReplaceAll(text, "\n", " ")
+
 	text = strings.ReplaceAll(text, "\r", " ")
+
+	text = strings.ReplaceAll(text, "\n", " ")
+
 	text = strings.Join(strings.Fields(text), " ")
+
 	return strings.TrimSpace(text)
 }

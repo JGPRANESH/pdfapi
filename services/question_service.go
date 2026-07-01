@@ -28,6 +28,7 @@ type QuizDocument struct {
 	ExamName    string `firestore:"examName"`
 
 	Questions []models.Question `firestore:"questions"`
+	IsActive  bool              `firestore:"isActive"`
 }
 
 func SaveQuiz(
@@ -64,8 +65,8 @@ func SaveQuiz(
 		Explanation: metadata.Explanation,
 		Category:    metadata.Category,
 		Difficulty:  metadata.Difficulty,
-
-		Questions: questions,
+		IsActive:    len(questions) >= 15,
+		Questions:   questions,
 	}
 
 	quizID := uuid.New().String()
